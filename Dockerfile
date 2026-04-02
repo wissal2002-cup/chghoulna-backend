@@ -6,7 +6,8 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 FROM php:8.4-cli-alpine
 
-RUN docker-php-ext-install pdo pdo_mysql mbstring bcmath
+RUN apk add --no-cache oniguruma-dev libxml2-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring bcmath
 
 WORKDIR /app
 

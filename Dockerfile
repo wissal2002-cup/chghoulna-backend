@@ -1,17 +1,17 @@
-FROM php:8.4-cli
+FROM composer:2 AS vendor
 
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip \
-    libpng-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+FROM php:8.4-cli-alpine
+
+RUN docker-php-ext-install pdo pdo_mysql mbstring bcmath
 
 WORKDIR /app
 
 COPY . .
-
-RUN composer install --no-dev --optimize-autoloader
+COPY --from=vendor /app/vendor ./vendor
 
 EXPOSE 8000
 

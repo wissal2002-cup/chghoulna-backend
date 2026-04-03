@@ -29,9 +29,10 @@ class AuthController extends Controller
     ]);
 // 📸 Upload de l'image si présente
         $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos', 'public');
-        }
+if ($request->hasFile('photo')) {
+    $uploaded = cloudinary()->upload($request->file('photo')->getRealPath());
+    $photoPath = $uploaded->getSecurePath();
+}
 
     $user = User::create([
         'prenom' => $request->prenom,
@@ -114,15 +115,10 @@ $token = $user->createToken('auth_token')->plainTextToken;
     ]);
 
     // Handle image if present
-    if ($request->hasFile('photo')) {
-        // Optional: delete old photo
-        if ($user->photo) {
-            Storage::delete($user->photo);
-        }
-
-        $path = $request->file('photo')->store('photos', 'public');
-        $data['photo'] = $path;
-    }
+if ($request->hasFile('photo')) {
+    $uploaded = cloudinary()->upload($request->file('photo')->getRealPath());
+    $data['photo'] = $uploaded->getSecurePath();
+}
 
     $user->update($data);
 
